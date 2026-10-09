@@ -1,0 +1,106 @@
+{
+  "model": "Stand-in linear token classifier (preview)",
+  "overall": [
+    {
+      "metric": "Micro-average (strict)",
+      "precision": 0.8474035393095445,
+      "recall": 0.9046144317126045,
+      "f1": 0.8750748951467945
+    },
+    {
+      "metric": "Macro-average over attributes",
+      "precision": 0.8258837630606883,
+      "recall": 0.8662823864767166,
+      "f1": 0.8448887881381052
+    },
+    {
+      "metric": "Lenient (overlap, same label)",
+      "precision": 0.8900493182477517,
+      "recall": 0.9473521213998142,
+      "f1": 0.9178071722358063
+    }
+  ],
+  "per_attribute": [
+    {
+      "attribute": "SLEEVE_STYLE",
+      "support": 1544,
+      "precision": 0.9075075075075075,
+      "recall": 0.9786269430051814,
+      "f1": 0.9417263945154254
+    },
+    {
+      "attribute": "NECKLINE",
+      "support": 763,
+      "precision": 0.7780346820809249,
+      "recall": 0.8820445609436435,
+      "f1": 0.8267813267813268
+    },
+    {
+      "attribute": "LENGTH",
+      "support": 506,
+      "precision": 0.763671875,
+      "recall": 0.7727272727272727,
+      "f1": 0.768172888015717
+    },
+    {
+      "attribute": "PATTERN",
+      "support": 416,
+      "precision": 0.854320987654321,
+      "recall": 0.8317307692307693,
+      "f1": 0.8428745432399514
+    }
+  ],
+  "subgroups": [
+    {
+      "subgroup": "short",
+      "n_records": 1334,
+      "n_entities": 1614,
+      "precision": 0.9149453219927096,
+      "recall": 0.9330855018587361,
+      "f1": 0.9239263803680982,
+      "f1_ci_low": 0.9128691596612263,
+      "f1_ci_high": 0.9342605943336085,
+      "small_sample": false
+    },
+    {
+      "subgroup": "long",
+      "n_records": 1166,
+      "n_entities": 1615,
+      "precision": 0.7856746252082176,
+      "recall": 0.8761609907120743,
+      "f1": 0.8284543325526932,
+      "f1_ci_low": 0.8101404815086924,
+      "f1_ci_high": 0.8451753797352528,
+      "small_sample": false
+    }
+  ],
+  "label_quality": {
+    "long": {
+      "total": 2063,
+      "untagged": 516,
+      "rate": 0.2501211827435773
+    },
+    "short": {
+      "total": 1741,
+      "untagged": 163,
+      "rate": 0.09362435381964389
+    }
+  },
+  "findings": [
+    "Short vs long text: F1 is 0.924 on short descriptions vs 0.828 on long ones (a 9.5-point gap; the 95% confidence intervals do not overlap, so the gap is real). Long descriptions contain far more words around each attribute, so there are more chances to miss or hallucinate one.",
+    "Weakest attribute is LENGTH (F1 0.768); strongest is SLEEVE_STYLE (F1 0.942).",
+    "Generalisation: only 35 of 3229 test spans (1.1%) use a phrase never seen as an attribute in training, so the test set barely tests generalisation at all (vocabulary is almost closed). Recall is 0.914 on seen phrases vs 0.057 on the 35 unseen ones; with so few unseen spans that number is indicative only, but it suggests the model relies on remembered vocabulary.",
+    "Multi-word spans are not harder: recall 0.925 for 2+ word spans vs 0.872 for single words.",
+    "The most frequent error type is 'false alarm'.",
+    "Label-quality audit: of 3804 test-text occurrences of phrases that annotators tag in training (e.g. 'long sleeve', 'floral'), 9.4% are left untagged in short descriptions and 25.0% in long descriptions. Gold labels are therefore incomplete, especially in long text. 82% of the model's false alarms are phrases that annotators do tag elsewhere in training (manual spot-checks found many were genuine mentions, e.g. 'Henley', or a list of available sleeve options). Reported precision is therefore a pessimistic estimate, and the long-text score is the one most distorted. Boundary errors also reveal inconsistent annotation (e.g. gold 'maxi dress' in one record, 'maxi' in another).",
+    "Some categories have very few test records (Wedding & Bridal Party Dresses: n=29, Shorts: n=23, Coats & Jackets: n=20, Baby & Toddler Dresses: n=19), so their scores are unreliable; the model has not been properly audited on these product types."
+  ],
+  "limitations": [
+    "Closed attribute set: only SLEEVE_STYLE, NECKLINE, LENGTH and PATTERN are extracted. Brand, colour, size and material from the original project idea are not supported.",
+    "Dataset is dominated by Shirts & Tops and Dresses; other categories (shorts, coats, baby dresses) only carry PATTERN labels and are barely represented, so performance on them is not trustworthy.",
+    "Vocabulary dependence: recall is 0.91 on phrases seen in training but 0.06 on the few unseen ones (n=35), so new styles, spellings or slang are likely to be missed; the test set is too small on this to be conclusive.",
+    "Noisy / incomplete / inconsistent gold labels (see audit finding) cap the achievable scores and make precision look worse than it is; some attribute words (e.g. 'polo', 'gown', 'pencil') are labelled as NECKLINE/LENGTH by convention rather than by true meaning.",
+    "Every record in the dataset contains at least one attribute, so the model is never trained on descriptions with none and may over-predict on unrelated text.",
+    "Exact-match scoring penalises small boundary differences (e.g. 'long sleeve' vs 'long sleeves'); the lenient score shows how much of the gap this explains."
+  ]
+}

@@ -1,0 +1,5 @@
+property,group,n_entities,recall
+Entity length,1 word,1257,0.8719172633253779
+Entity length,2+ words,1972,0.9254563894523327
+Entity phrase,seen in training,3194,0.9139010644959299
+Entity phrase,unseen in training,35,0.05714285714285714
